@@ -61,7 +61,7 @@ AI_API_KEY=<YOUR_AI_API_KEY>
 
 ```bash
 cd ../client
-pnpm install
+bun install
 ```
 
 Create a `.env` file in the `client` directory:
@@ -84,6 +84,6 @@ bun run dev
 
 ```bash
 cd ../client
-pnpm run dev
+bun run dev
 ```
  -->
