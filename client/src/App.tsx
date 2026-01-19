@@ -1,25 +1,18 @@
-import { CTA } from './components/cta';
-import { Features } from './components/features';
-import { Footer } from './components/footer';
-import { Header } from './components/header';
-import { HeroSection } from './components/hero';
-import { Stats } from './components/stats';
-import { Testimonials } from './components/testimonials';
-import { TrustedBy } from './components/trusted-by';
+import LandingPage from './pages/LandingPage';
+import { Route, Routes } from 'react-router';
+import DashBoard from './pages/DashBoard';
 
 function App() {
   return (
-    <div className="min-h-screen w-full bg-background" style={{ overflow: 'hidden', position: 'relative' }}>
-      <Header />
-      <main className="w-full" style={{ overflow: 'hidden' }}>
-        <HeroSection />
-        <TrustedBy />
-        <Stats />
-        <Features />
-        <Testimonials />
-        <CTA />
-      </main>
-      <Footer />
+    <div
+      className="min-h-screen w-full bg-background"
+      style={{ overflow: 'hidden', position: 'relative' }}
+    >
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+
+        <Route path="/dashboard" element={<DashBoard />} />
+      </Routes>
     </div>
   );
 }
