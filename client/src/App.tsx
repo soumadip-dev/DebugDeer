@@ -1,35 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { CTA } from './components/cta';
+import { Features } from './components/features';
+import { Footer } from './components/footer';
+import { Header } from './components/header';
+import { HeroSection } from './components/hero';
+import { Stats } from './components/stats';
+import { Testimonials } from './components/testimonials';
+import { TrustedBy } from './components/trusted-by';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen w-full bg-background" style={{ overflow: 'hidden', position: 'relative' }}>
+      <Header />
+      <main className="w-full" style={{ overflow: 'hidden' }}>
+        <HeroSection />
+        <TrustedBy />
+        <Stats />
+        <Features />
+        <Testimonials />
+        <CTA />
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;
