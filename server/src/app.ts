@@ -5,15 +5,21 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler, notFound } from './middlewares/error.middleware';
 import configureCors from './config/cors.config';
+import { auth } from './lib/auth.ts';
 
 import logger from './utils/logger.utils';
 import healthRoutes from './routes/health.routes';
+import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 
 const app: Express = express();
 
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(configureCors());
+
+// Route handler for Better Auth endpoints
+app.all('/api/auth/*splat', toNodeHandler(auth));
+
 app.use(express.json()); // parse json request to body
 app.use(express.urlencoded({ extended: true })); // parse form data (like html form)
 
@@ -29,6 +35,14 @@ app.get('/', (req: Request, res: Response) => {
     message: 'DebugDeer server is running 🦌',
     success: true,
   });
+});
+
+// Get current session
+app.get('/api/me', async (req, res) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+  return res.json(session);
 });
 
 app.use('/api/health', healthRoutes);
