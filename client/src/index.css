@@ -3,122 +3,88 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ============================================
-   ROOT THEME VARIABLES - LIGHT MODE (DEFAULT)
-   ============================================ */
 :root {
-  /* Light Mode Base Colors */
   --background: #ffffff;
   --foreground: #0a0a0a;
-  
-  /* Card & Surface Colors */
+
   --card: #ffffff;
   --card-foreground: #0a0a0a;
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
-  
-  /* Primary Brand Colors - Electric Blue */
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
   --primary-hover: #2563eb;
-  
-  /* Secondary Brand Colors - Violet */
+
   --secondary: #8b5cf6;
   --secondary-foreground: #ffffff;
   --secondary-hover: #7c3aed;
-  
-  /* Accent Colors */
   --accent: #f1f5f9;
   --accent-foreground: #0a0a0a;
-  
-  /* Muted Colors */
   --muted: #f8fafc;
   --muted-foreground: #64748b;
-  
-  /* Destructive/Error Colors */
+
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  
-  /* Border & Input */
+
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #3b82f6;
-  
-  /* Chart Colors */
+
   --chart-1: #3b82f6;
   --chart-2: #8b5cf6;
   --chart-3: #06b6d4;
   --chart-4: #10b981;
   --chart-5: #f59e0b;
-  
-  /* Typography */
+
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
-  
-  /* Border Radius */
+
   --radius: 8px;
-  
-  /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  
-  /* Gradients */
+
   --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   --gradient-secondary: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
 }
 
-/* ============================================
-   DARK MODE THEME
-   ============================================ */
 .dark {
-  /* Dark Mode Base Colors - True Black/Very Dark Gray */
   --background: #0a0a0a;
   --foreground: #f8fafc;
-  
-  /* Card & Surface Colors - Slightly Elevated */
+
   --card: #141414;
   --card-foreground: #f8fafc;
   --popover: #1a1a1a;
   --popover-foreground: #f8fafc;
-  
-  /* Primary Brand Colors - Electric Blue */
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
   --primary-hover: #60a5fa;
-  
-  /* Secondary Brand Colors - Violet */
+
   --secondary: #8b5cf6;
   --secondary-foreground: #ffffff;
   --secondary-hover: #a78bfa;
-  
-  /* Accent Colors */
+
   --accent: #1e293b;
   --accent-foreground: #f8fafc;
-  
-  /* Muted Colors */
+
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
-  
-  /* Destructive/Error Colors */
+
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  
-  /* Border & Input */
+
   --border: #27272a;
   --input: #27272a;
   --ring: #3b82f6;
-  
-  /* Chart Colors - Slightly Brighter for Dark Mode */
+
   --chart-1: #60a5fa;
   --chart-2: #a78bfa;
   --chart-3: #22d3ee;
   --chart-4: #34d399;
   --chart-5: #fbbf24;
-  
-  /* Shadows - Adjusted for Dark Mode */
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
@@ -126,9 +92,6 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
 }
 
-/* ============================================
-   TAILWIND THEME INTEGRATION
-   ============================================ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -172,15 +135,11 @@
   --shadow-xl: var(--shadow-xl);
 }
 
-/* ============================================
-   BASE STYLES & RESETS - CRITICAL FOR LAYOUT STABILITY
-   ============================================ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  
-  /* Prevent layout shifts - force scrollbar gutter */
+
   html {
     @apply antialiased;
     scroll-behavior: smooth;
@@ -190,7 +149,7 @@
     min-height: 100vh;
     width: 100%;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
@@ -201,8 +160,7 @@
     padding: 0;
     position: relative;
   }
-  
-  /* Disable ALL transitions on theme change to prevent layout shifts */
+
   html.transitioning,
   html.transitioning *,
   html.transitioning *::before,
@@ -210,24 +168,21 @@
     transition: none !important;
     animation: none !important;
   }
-  
-  /* Only allow GPU-accelerated properties to transition */
+
   body,
   body *:not(svg):not(path):not(circle):not(rect):not(line):not(polyline):not(polygon) {
-    transition-property: color, background-color, border-color, fill, stroke, opacity, box-shadow, transform;
+    transition-property:
+      color, background-color, border-color, fill, stroke, opacity, box-shadow, transform;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
   }
-  
-  /* Prevent width/height/margin/padding/border transitions */
+
   * {
-    transition-property: color, background-color, border-color, opacity, box-shadow, transform !important;
+    transition-property:
+      color, background-color, border-color, opacity, box-shadow, transform !important;
   }
 }
 
-/* ============================================
-   CUSTOM UTILITIES
-   ============================================ */
 @utility gradient-text {
   background: var(--gradient-primary);
   -webkit-background-clip: text;
@@ -257,49 +212,35 @@
   scrollbar-width: none;
 }
 
-/* ============================================
-   COMPONENT STYLES
-   ============================================ */
 @layer components {
   .hero-gradient {
-    background: radial-gradient(
-      ellipse 80% 50% at 50% -20%,
-      rgba(59, 130, 246, 0.15),
-      transparent
-    );
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15), transparent);
   }
-  
+
   .dark .hero-gradient {
-    background: radial-gradient(
-      ellipse 80% 50% at 50% -20%,
-      rgba(59, 130, 246, 0.1),
-      transparent
-    );
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.1), transparent);
   }
-  
+
   .feature-card {
     @apply rounded-lg border border-border bg-card p-6;
     will-change: transform, box-shadow;
   }
-  
+
   .feature-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
     border-color: rgba(59, 130, 246, 0.5);
   }
-  
+
   .glass-card {
     @apply rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl;
   }
-  
+
   .dark .glass-card {
     @apply border-white/5 bg-white/[0.02];
   }
 }
 
-/* ============================================
-   ANIMATIONS - GPU ACCELERATED ONLY
-   ============================================ */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -312,7 +253,8 @@
 }
 
 @keyframes gradient-shift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -321,7 +263,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.2;
   }
   50% {
@@ -342,9 +285,6 @@
   animation: pulse-glow 4s ease-in-out infinite;
 }
 
-/* ============================================
-   SCROLLBAR STYLING - CONSISTENT WIDTH
-   ============================================ */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -363,9 +303,6 @@
   background: rgba(var(--muted-foreground), 0.5);
 }
 
-/* ============================================
-   PREVENT LAYOUT SHIFT FROM FOCUS STATES
-   ============================================ */
 *:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
@@ -379,15 +316,12 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* ============================================
-   FIX DROPDOWN/MODAL Z-INDEX ISSUES
-   ============================================ */
 [data-radix-popper-content-wrapper] {
   z-index: 100 !important;
 }
 
-[role="dialog"],
-[role="menu"],
-[role="listbox"] {
+[role='dialog'],
+[role='menu'],
+[role='listbox'] {
   z-index: 100 !important;
 }
