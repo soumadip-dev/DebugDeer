@@ -1,9 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Github, Menu, X, LogOut, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ModeToggle } from './mode-toggle';
 import { useNavigate } from 'react-router';
 import { signIn, signOut, useSession } from '../lib/auth-client';
+import { LoadingSpinner } from './LoadingSpinner';
+
+const MOBILE_BREAKPOINT = 768;
+const CALLBACK_URL = 'http://localhost:5173/dashboard';
 
 export function Header() {
   const { data: session, isPending: sessionPending } = useSession();
@@ -12,46 +16,65 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const handleGithubLogin = async () => {
+  const handleGithubLogin = useCallback(async () => {
     setIsLoading(true);
     try {
       await signIn.social({
         provider: 'github',
-        callbackURL: 'http://localhost:5173/dashboard',
+        callbackURL: CALLBACK_URL,
       });
     } catch (error) {
       console.error('Sign in error:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     try {
       await signOut();
-      // Optionally navigate to home page after sign out
       navigate('/');
     } catch (error) {
       console.error('Sign out error:', error);
     }
-  };
+  }, [navigate]);
 
-  const handleDashboardClick = () => {
+  const handleDashboardClick = useCallback(() => {
     navigate('/dashboard');
     setMobileMenuOpen(false);
-  };
+  }, [navigate]);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
+
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
+
+  const handleResize = useCallback(() => {
+    if (window.innerWidth >= MOBILE_BREAKPOINT && mobileMenuOpen) {
+      closeMobileMenu();
+    }
+  }, [mobileMenuOpen, closeMobileMenu]);
+
+  const handleScroll = useCallback(() => {
+    setScrolled(window.scrollY > 10);
+  }, []);
+
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (mobileMenuOpen) {
+        const header = document.querySelector('header');
+        if (header && !header.contains(event.target as Node)) {
+          closeMobileMenu();
+        }
+      }
+    },
+    [mobileMenuOpen, closeMobileMenu]
+  );
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
 
@@ -59,41 +82,31 @@ export function Header() {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [mobileMenuOpen]);
+  }, [handleResize, handleScroll]);
 
-  // Close mobile menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuOpen) {
-        const header = document.querySelector('header');
-        if (header && !header.contains(event.target as Node)) {
-          setMobileMenuOpen(false);
-        }
-      }
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [mobileMenuOpen]);
+  }, [handleClickOutside]);
+
+  const headerStyle = {
+    borderColor: scrolled ? 'var(--border)' : 'transparent',
+    backgroundColor: scrolled ? 'rgba(var(--background), 0.95)' : 'rgba(var(--background), 0.98)',
+    backdropFilter: scrolled ? 'blur(12px)' : 'blur(8px)',
+    boxShadow: scrolled ? 'var(--shadow-sm)' : 'var(--shadow-xs)',
+    transition:
+      'background-color 300ms, border-color 300ms, box-shadow 300ms, backdrop-filter 300ms',
+    willChange: 'background-color, border-color, box-shadow',
+  } as const;
+
+  const mobileMenuStyle = {
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+  } as const;
 
   return (
-    <header
-      className="fixed top-0 left-0 right-0 z-50"
-      style={{
-        borderColor: scrolled ? 'var(--border)' : 'transparent',
-        backgroundColor: scrolled
-          ? 'rgba(var(--background), 0.95)'
-          : 'rgba(var(--background), 0.98)',
-        backdropFilter: scrolled ? 'blur(12px)' : 'blur(8px)',
-        boxShadow: scrolled ? 'var(--shadow-sm)' : 'var(--shadow-xs)',
-        transition:
-          'background-color 300ms, border-color 300ms, box-shadow 300ms, backdrop-filter 300ms',
-        willChange: 'background-color, border-color, box-shadow',
-      }}
-    >
+    <header className="fixed top-0 left-0 right-0 z-50" style={headerStyle}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <div className="flex items-center">
             <a href="/" className="flex items-center gap-2 sm:gap-3 group">
               <img
@@ -107,15 +120,12 @@ export function Header() {
             </a>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:gap-4">
             <ModeToggle />
 
             {sessionPending ? (
-              // Loading skeleton
-              <div className="h-9 w-24 rounded-md bg-muted animate-pulse"></div>
+              <LoadingSpinner />
             ) : session ? (
-              // Signed in state
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
@@ -135,7 +145,6 @@ export function Header() {
                 </Button>
               </div>
             ) : (
-              // Signed out state
               <Button
                 className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity px-4 py-2"
                 onClick={handleGithubLogin}
@@ -147,15 +156,15 @@ export function Header() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex items-center gap-2 md:hidden">
             <ModeToggle />
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={toggleMobileMenu}
               aria-label="Toggle menu"
               disabled={sessionPending}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
                 <X className="h-5 w-5" aria-hidden="true" />
@@ -167,26 +176,24 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <div
         className={`md:hidden absolute top-full left-0 right-0 border-t border-border/50 bg-background/95 backdrop-blur-xl transform transition-all duration-300 ease-in-out ${
           mobileMenuOpen
             ? 'translate-y-0 opacity-100 visible'
             : '-translate-y-2 opacity-0 invisible'
         }`}
-        style={{
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-        }}
+        style={mobileMenuStyle}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
       >
         <div className="px-4 py-6 space-y-4">
           {sessionPending ? (
-            // Loading state for mobile
             <div className="space-y-3">
               <div className="h-12 w-full rounded-md bg-muted animate-pulse"></div>
               <div className="h-12 w-full rounded-md bg-muted animate-pulse"></div>
             </div>
           ) : session ? (
-            // Signed in mobile menu
             <div className="space-y-3">
               <div className="px-3 py-2 rounded-lg bg-muted/50">
                 <p className="text-sm font-medium text-foreground">Signed in as</p>
@@ -208,7 +215,7 @@ export function Header() {
                 className="w-full justify-start border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors py-3"
                 onClick={() => {
                   handleSignOut();
-                  setMobileMenuOpen(false);
+                  closeMobileMenu();
                 }}
               >
                 <LogOut className="mr-3 h-5 w-5" />
@@ -216,13 +223,12 @@ export function Header() {
               </Button>
             </div>
           ) : (
-            // Signed out mobile menu
             <div className="space-y-4">
               <Button
                 className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 text-base font-medium"
                 onClick={() => {
                   handleGithubLogin();
-                  setMobileMenuOpen(false);
+                  closeMobileMenu();
                 }}
                 disabled={isLoading}
               >

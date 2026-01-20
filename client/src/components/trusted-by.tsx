@@ -16,8 +16,7 @@ export function TrustedBy() {
         <p className="text-center text-sm font-medium text-muted-foreground mb-8">
           Trusted by engineering teams at
         </p>
-        
-        {/* Companies Grid */}
+
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
           {companies.map((company, index) => (
             <div

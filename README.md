@@ -25,7 +25,7 @@
 - **🧠 AI Engine**: Gemini
 - **🌐 Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
 - **🛠 Backend**: Express.js, TypeScript, Bun
-- **🔐 Authentication**: GitHub OAuth
+- **🔐 Authentication**: Better Auth
 - **🔄 Integrations**: GitHub Webhooks, REST APIs
 - **📦 Database**: PostgreSQL
 

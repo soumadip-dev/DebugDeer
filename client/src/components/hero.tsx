@@ -5,12 +5,10 @@ import { TextEffect } from '@/components/ui/text-effect';
 export function HeroSection() {
   return (
     <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 lg:pt-40 lg:pb-20 overflow-hidden">
-      {/* Gradient Background */}
       <div className="absolute inset-0 -z-10 hero-gradient" />
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_120%,rgba(139,92,246,0.1),transparent_50%)]" />
-      
-      {/* Grid Pattern Overlay */}
-      <div 
+
+      <div
         className="absolute inset-0 -z-10 opacity-20 dark:opacity-10"
         style={{
           backgroundImage: `linear-gradient(to right, rgb(59 130 246 / 0.1) 1px, transparent 1px),
@@ -21,7 +19,6 @@ export function HeroSection() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          {/* Announcement Badge */}
           <div className="flex justify-center mb-8">
             <a
               href="#features"
@@ -33,17 +30,12 @@ export function HeroSection() {
             </a>
           </div>
 
-          {/* Main Heading */}
           <h1 className="mx-auto max-w-5xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            <TextEffect
-              preset="fade-in-blur"
-              speedSegment={0.3}
-            >
+            <TextEffect preset="fade-in-blur" speedSegment={0.3}>
               Ship Cleaner Code Faster
             </TextEffect>
           </h1>
 
-          {/* Subheading */}
           <TextEffect
             per="line"
             preset="fade-in-blur"
@@ -52,14 +44,13 @@ export function HeroSection() {
             as="p"
             className="mx-auto mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed"
           >
-            AI-powered code reviews that catch bugs before they reach production. 
-            DebugDeer analyzes your pull requests and helps you ship with confidence.
+            AI-powered code reviews that catch bugs before they reach production. DebugDeer analyzes
+            your pull requests and helps you ship with confidence.
           </TextEffect>
 
-          {/* CTA Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 px-8 h-12 text-base font-semibold group"
             >
               Start Free Trial
@@ -74,19 +65,16 @@ export function HeroSection() {
             </Button>
           </div>
 
-          {/* Social Proof */}
           <p className="mt-8 text-sm text-muted-foreground">
-            Trusted by <span className="font-semibold text-foreground">10,000+</span> development teams worldwide
+            Trusted by <span className="font-semibold text-foreground">10,000+</span> development
+            teams worldwide
           </p>
         </div>
 
-        {/* Hero Image */}
         <div className="mt-16 sm:mt-20 lg:mt-24">
           <div className="relative mx-auto max-w-5xl">
-            {/* Glow Effect */}
             <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 rounded-3xl blur-3xl opacity-50" />
-            
-            {/* Image Container */}
+
             <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-2xl ring-1 ring-border/10">
               <div className="aspect-[16/9] bg-gradient-to-br from-muted/50 to-muted">
                 <img
@@ -98,7 +86,6 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Floating Elements */}
             <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 blur-2xl animate-pulse" />
             <div className="absolute -bottom-4 -left-4 h-32 w-32 rounded-full bg-gradient-to-br from-secondary to-primary opacity-20 blur-2xl animate-pulse delay-700" />
           </div>
