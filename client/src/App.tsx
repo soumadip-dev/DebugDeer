@@ -4,6 +4,7 @@ import DashBoard from './pages/DashBoard';
 import { useSession } from './lib/auth-client';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import NotFound from './pages/NotFound';
+import DashboardLayout from './layouts/DashboardLayout';
 
 function App() {
   const { data: currentSession, isPending: sessionPending } = useSession();
@@ -17,7 +18,9 @@ function App() {
     >
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={currentSession ? <DashBoard /> : <Navigate to="/" />} />
+        <Route element={currentSession ? <DashboardLayout /> : <Navigate to="/" />}>
+          <Route path="/dashboard" element={<DashBoard />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
