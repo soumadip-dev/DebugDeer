@@ -4,13 +4,16 @@ import './index.css';
 import App from './App.tsx';
 import { ThemeProvider } from './components/theme-provider.tsx';
 import { BrowserRouter } from 'react-router';
+import { TooltipProvider } from './components/ui/tooltip.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="debugdeer-theme">
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ThemeProvider>
+    <TooltipProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="debugdeer-theme">
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ThemeProvider>
+    </TooltipProvider>
   </StrictMode>
 );

@@ -1,20 +1,25 @@
 import { Button } from '@/components/ui/button';
-import { Github, Menu, X, LogOut, User } from 'lucide-react';
+import { Github, Menu, X, LogOut, User, Sun, Moon } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import { ModeToggle } from './mode-toggle';
 import { useNavigate } from 'react-router';
 import { signIn, signOut, useSession } from '../lib/auth-client';
 import { LoadingSpinner } from './LoadingSpinner';
+import { useTheme } from './theme-provider';
 
 const MOBILE_BREAKPOINT = 768;
 const CALLBACK_URL = 'http://localhost:5173/dashboard';
 
 export function Header() {
   const { data: session, isPending: sessionPending } = useSession();
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   const handleGithubLogin = useCallback(async () => {
     setIsLoading(true);
@@ -121,7 +126,13 @@ export function Header() {
           </div>
 
           <div className="hidden md:flex md:items-center md:gap-4">
-            <ModeToggle />
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-foreground/70 hover:text-foreground"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
 
             {sessionPending ? (
               <LoadingSpinner />
@@ -157,7 +168,13 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            <ModeToggle />
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-foreground/70 hover:text-foreground"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
