@@ -9,6 +9,8 @@ import { auth } from './lib/auth.ts';
 
 import logger from './utils/logger.utils';
 import healthRoutes from './routes/health.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+
 import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 
 const app: Express = express();
@@ -46,6 +48,7 @@ app.get('/api/me', async (req, res) => {
 });
 
 app.use('/api/health', healthRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middlewares
 app.use(notFound);
