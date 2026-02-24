@@ -5,6 +5,44 @@ import { db } from '../db';
 import { and, gte, eq } from 'drizzle-orm';
 import logger from '../utils/logger.utils';
 
+//* Controller to get contribution graph data
+async function getContributionGraph(req: Request, res: Response) {
+  try {
+    const token = await getGithubToken(req);
+    const octokit = new Octokit({ auth: token });
+
+    const { data: githubUser } = await octokit.rest.users.getAuthenticated();
+    const username = githubUser.login;
+
+    const calendar = await fetchUserContributions(token, username);
+
+    if (!calendar) {
+      return res.status(404).json({
+        message: 'Contribution graph not found',
+      });
+    }
+
+    const contributions = calendar.weeks.flatMap((week: any) =>
+      week.contributionDays.map((day: any) => ({
+        date: day.date,
+        count: day.contributionCount,
+        level: Math.min(4, Math.floor(day.contributionCount / 3)), // Convert to 0-4 scale
+      }))
+    );
+
+    res.status(200).json({
+      message: 'Contribution graph fetched successfully',
+      data: { contributions, totalContributions: calendar.totalContributions },
+    });
+  } catch (error) {
+    logger.error('Error in getContributionGraph:', error);
+    res.status(500).json({
+      error: 'Failed to fetch contribution graph',
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 //* Controller to get dashboard stats (total commits, total PRs, total reviews, total repos)
 async function getDashboardStats(req: Request, res: Response) {
   try {
@@ -51,6 +89,7 @@ async function getDashboardStats(req: Request, res: Response) {
     });
   }
 }
+
 //* Controller to get monthly activity for the last 6 months (commits, PRs, reviews)
 async function getMonthlyActivity(req: Request, res: Response) {
   try {
@@ -166,4 +205,4 @@ async function getMonthlyActivity(req: Request, res: Response) {
   }
 }
 
-export { getDashboardStats, getMonthlyActivity };
+export { getDashboardStats, getMonthlyActivity, getContributionGraph };

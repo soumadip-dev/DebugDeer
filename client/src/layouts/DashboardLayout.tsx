@@ -8,12 +8,12 @@ export default function DashboardLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mx-2 h-4" />
-          <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
+          <SidebarTrigger className="-ml-1 hover:bg-accent hover:text-accent-foreground transition-colors" />
+          <Separator orientation="vertical" className="mx-2 h-4 bg-border/50" />
+          <h1 className="text-base sm:text-lg font-semibold tracking-tight">Dashboard</h1>
         </header>
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </SidebarInset>
