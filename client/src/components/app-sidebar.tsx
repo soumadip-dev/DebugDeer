@@ -6,15 +6,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "../components/ui/sidebar";
+} from '../components/ui/sidebar';
 
-import { Github, BookOpen, Settings, LogOut, Moon, Sun } from "lucide-react";
+import { Github, BookOpen, Settings, LogOut, Moon, Sun, LayoutDashboard } from 'lucide-react';
 
-import { signOut, useSession } from "../lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { signOut, useSession } from '../lib/auth-client';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 
-import { Link, useNavigate, useLocation } from "react-router";
-import { useTheme } from "./theme-provider";
+import { Link, useNavigate, useLocation } from 'react-router';
+import { useTheme } from './theme-provider';
 
 export function AppSidebar() {
   const { data: session } = useSession();
@@ -24,134 +24,125 @@ export function AppSidebar() {
 
   const navigationItems = [
     {
-      title: "Dashboard",
-      href: "/dashboard",
-      icon: BookOpen,
+      title: 'Dashboard',
+      href: '/dashboard',
+      icon: LayoutDashboard,
     },
     {
-      title: "Repository",
-      href: "/dashboard/repositories",
+      title: 'Repository',
+      href: '/dashboard/repositories',
       icon: Github,
     },
     {
-      title: "Reviews",
-      href: "/dashboard/reviews",
+      title: 'Reviews',
+      href: '/dashboard/reviews',
       icon: BookOpen,
     },
     {
-      title: "Settings",
-      href: "/dashboard/settings",
+      title: 'Settings',
+      href: '/dashboard/settings',
       icon: Settings,
     },
   ];
 
   const isActive = (url: string) => {
-    return location.pathname.startsWith(url);
+    return location.pathname === url || location.pathname.startsWith(url + '/');
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate("/");
+      navigate('/');
     } catch (error) {
-      console.error("Sign out error:", error);
+      console.error('Sign out error:', error);
     }
   };
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   if (!session) return null;
 
   const user = session.user;
-  const userName = user?.name || "GUEST";
+  const userName = user?.name || 'GUEST';
   const userAvatar = user?.image;
 
   const userInitials = userName
-    .split(" ")
+    .split(' ')
     .map((name: string) => name.charAt(0).toUpperCase())
-    .join("");
+    .join('')
+    .slice(0, 2);
 
   return (
-    <Sidebar>
-      {/* Header */}
-      <SidebarHeader className="border-b">
-        <div className="flex flex-col gap-4 px-2 py-6">
-          <div className="flex items-center gap-4 px-3 py-4 rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent/70 transition-colors">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary text-primary-foreground flex-shrink-0">
-              <Github className="w-6 h-6" />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-sidebar-foreground tracking-wide">
-                Connected Account
-              </p>
-              <p className="text-sm font-medium text-sidebar-foreground/90">
-                @{userName}
-              </p>
-            </div>
+    <Sidebar className="border-r border-border/50">
+      <SidebarHeader className="border-b border-border/50">
+        <div className="flex items-center gap-3 px-4 py-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-md">
+            <Github className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold tracking-tight">DebugDeer</span>
+            <span className="text-xs text-muted-foreground">Developer Dashboard</span>
           </div>
         </div>
       </SidebarHeader>
 
-      {/* Navigation */}
-      <SidebarContent className="px-3 py-6">
-        <SidebarMenu className="gap-2">
-          {navigationItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.title}
-                className={`h-11 px-4 rounded-lg transition-all duration-200 ${
-                  isActive(item.href)
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                    : "hover:bg-sidebar-accent/60 text-sidebar-foreground"
-                }`}
-              >
-                <Link to={item.href} className="flex items-center gap-3">
-                  <item.icon className="w-5 h-5 shrink-0" />
-                  <span className="text-sm font-medium">{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+      <SidebarContent className="px-3 py-4">
+        <SidebarMenu className="space-y-1">
+          {navigationItems.map(item => {
+            const active = isActive(item.href);
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  className={`
+                    relative h-11 px-3 rounded-xl transition-all duration-200
+                    ${
+                      active
+                        ? 'bg-primary/10 text-primary font-medium before:absolute before:left-0 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:bg-primary'
+                        : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground'
+                    }
+                  `}
+                >
+                  <Link to={item.href} className="flex items-center gap-3">
+                    <item.icon className={`h-5 w-5 shrink-0 ${active ? 'text-primary' : ''}`} />
+                    <span className="text-sm">{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
 
-      {/* Footer with User Info and Action Icons */}
-      <SidebarFooter className="border-t px-3 py-4">
-        <div className="flex items-center justify-between gap-2">
-          {/* User Info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <Avatar className="h-9 w-9 rounded-lg flex-shrink-0">
-              <AvatarImage src={userAvatar || "/placeholder.svg"} alt={userName} />
-              <AvatarFallback className="rounded-lg bg-primary/10">
-                {userInitials}
-              </AvatarFallback>
-            </Avatar>
+      <SidebarFooter className="border-t border-border/50 p-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 rounded-xl border-2 border-border/50">
+            <AvatarImage src={userAvatar || '/placeholder.svg'} alt={userName} />
+            <AvatarFallback className="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-medium">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
 
-            <div className="flex-1 text-left min-w-0">
-              <p className="text-sm font-medium truncate">{userName}</p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">
-                View profile
-              </p>
-            </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{userName}</p>
+            <p className="text-xs text-muted-foreground truncate">{user.email || 'Connected'}</p>
           </div>
 
-          {/* Action Icons */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-sidebar-accent/50 transition-colors text-sidebar-foreground/70 hover:text-sidebar-foreground"
+              className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
             <button
               onClick={handleSignOut}
-              className="p-2 rounded-lg hover:bg-sidebar-accent/50 transition-colors text-sidebar-foreground/70 hover:text-destructive"
+              className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
               aria-label="Sign out"
             >
               <LogOut className="h-4 w-4" />
