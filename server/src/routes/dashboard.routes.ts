@@ -3,7 +3,7 @@ import {
   getContributionGraph,
   getDashboardStats,
   getMonthlyActivity,
-} from '../controllers/dashboard.controller';
+} from '../controllers/dashboard.controller.ts';
 
 const router = Router();
 
