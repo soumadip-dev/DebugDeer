@@ -57,7 +57,27 @@ WEBHOOK_SECRET=<YOUR_GITHUB_WEBHOOK_SECRET>
 AI_API_KEY=<YOUR_AI_API_KEY>
 ```
 
-### 3. Frontend Setup
+### 3. Setup Database (Drizzle)
+
+Generate database migrations:
+
+```bash
+bunx drizzle-kit generate
+```
+
+Apply migrations to your PostgreSQL database:
+
+```bash
+bunx drizzle-kit migrate
+```
+
+Alternatively, during development you can directly push the schema:
+
+```bash
+bunx drizzle-kit push
+```
+
+### 4. Frontend Setup
 
 ```bash
 cd ../client
@@ -71,19 +91,19 @@ NEXT_PUBLIC_GITHUB_CLIENT_ID=<YOUR_GITHUB_CLIENT_ID>
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 ```
 
-### 4. Run the Application
+### 5. Run the Application
 
-- **Backend (Terminal 1)**
+Backend:
 
 ```bash
 cd server
 bun run dev
 ```
 
-- **Frontend (Terminal 2)**
+Frontend:
 
 ```bash
-cd ../client
+cd client
 bun run dev
 ```
  -->
