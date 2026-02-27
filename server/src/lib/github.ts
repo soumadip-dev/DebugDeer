@@ -1,7 +1,7 @@
 import { Octokit } from 'octokit';
 import { auth } from './auth';
 import { db } from '../db';
-import { account } from '../db/auth-schema';
+import { account } from '../db/schema';
 import { fromNodeHeaders } from 'better-auth/node';
 import { eq, and } from 'drizzle-orm';
 import type { Request } from 'express';
@@ -63,4 +63,25 @@ async function fetchUserContributions(token: string, username: string) {
   }
 }
 
-export { getGithubToken, fetchUserContributions };
+//* Fetches a user's repositories from GitHub API.
+async function getRepositories(page: number = 1, perPage: number = 10, req: Request) {
+  try {
+    const token = await getGithubToken(req);
+    const octokit = new Octokit({ auth: token });
+
+    const { data } = await octokit.rest.repos.listForAuthenticatedUser({
+      sort: 'updated',
+      direction: 'desc',
+      visibility: 'all',
+      per_page: perPage,
+      page: page,
+    });
+
+    return data;
+  } catch (error) {
+    logger.error('GitHub API error:', error);
+    throw new Error('Failed to fetch repositories');
+  }
+}
+
+export { getGithubToken, fetchUserContributions, getRepositories };

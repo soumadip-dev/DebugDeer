@@ -1,7 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
-import * as authSchema from './auth-schema';
 import { env } from '../config/env.config';
 import logger from '../utils/logger.utils';
 
@@ -22,7 +21,7 @@ pool.on('error', err => {
   logger.error('Database connection error ❌', err);
 });
 
-export const db = drizzle({ client: pool, schema: { ...schema, ...authSchema } });
+export const db = drizzle({ client: pool, schema: { ...schema } });
 
 /*
 NOTE::::::::

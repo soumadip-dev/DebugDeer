@@ -30,17 +30,17 @@ export function AppSidebar() {
     },
     {
       title: 'Repository',
-      href: '/dashboard/repositories',
+      href: '/repositories',
       icon: Github,
     },
     {
       title: 'Reviews',
-      href: '/dashboard/reviews',
+      href: '/reviews',
       icon: BookOpen,
     },
     {
       title: 'Settings',
-      href: '/dashboard/settings',
+      href: '/settings',
       icon: Settings,
     },
   ];
