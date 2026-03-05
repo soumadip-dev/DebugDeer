@@ -6,6 +6,7 @@ import { fromNodeHeaders } from 'better-auth/node';
 import { eq, and } from 'drizzle-orm';
 import type { Request } from 'express';
 import logger from '../utils/logger.utils';
+import { env } from '../config/env.config';
 
 //* Retrieves the GitHub access token for the authenticated user from the database.
 async function getGithubToken(req: Request): Promise<string> {
@@ -84,4 +85,40 @@ async function getRepositories(page: number = 1, perPage: number = 10, req: Requ
   }
 }
 
-export { getGithubToken, fetchUserContributions, getRepositories };
+//* Creates a webhook for a repository on GitHub.
+const createWebhook = async (owner: string, repo: string, req: Request) => {
+  try {
+    const token = await getGithubToken(req);
+    const octokit = new Octokit({ auth: token });
+
+    const webhookUrl = `${env.PUBLIC_APP_BASE_URL}api/webhook/github`;
+
+    const { data: hooks } = await octokit.rest.repos.listWebhooks({
+      owner,
+      repo,
+    });
+
+    const existingHook = hooks.find(hook => hook.config?.url === webhookUrl);
+
+    if (existingHook) {
+      return existingHook;
+    }
+
+    const { data } = await octokit.rest.repos.createWebhook({
+      owner,
+      repo,
+      config: {
+        url: webhookUrl,
+        content_type: 'json',
+      },
+      events: ['pull_request'],
+    });
+
+    return data;
+  } catch (error) {
+    logger.error('Failed to create webhook:', error);
+    throw new Error('Webhook creation failed');
+  }
+};
+
+export { getGithubToken, fetchUserContributions, getRepositories, createWebhook };
