@@ -11,6 +11,7 @@ import logger from './utils/logger.utils';
 import healthRoutes from './routes/health.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import repositoryRoutes from './routes/repository.routes';
+import webhookRoutes from './routes/webhook.routes';
 
 import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 
@@ -51,6 +52,7 @@ app.get('/api/me', async (req, res) => {
 app.use('/api/health', healthRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/repo', repositoryRoutes);
+app.use('/api/webhook', webhookRoutes);
 
 // Error handling middlewares
 app.use(notFound);
