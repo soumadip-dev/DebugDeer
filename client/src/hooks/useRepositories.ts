@@ -11,7 +11,7 @@ async function fetchRepositories({
     page: page.toString(),
     perPage: perPage.toString(),
   });
-  const response = await fetch(`${API_BASE_URL}/api/repo/repositories?${params}`, {
+  const response = await fetch(`${API_BASE_URL}/api/repo/?${params}`, {
     headers: {
       'Content-Type': 'application/json',
     },

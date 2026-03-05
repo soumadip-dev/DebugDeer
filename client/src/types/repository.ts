@@ -27,3 +27,9 @@ export interface RepositoriesQueryParams {
   page?: number;
   perPage?: number;
 }
+
+export interface ConnectRepositoryParams {
+  owner: string;
+  repo: string;
+  githubId: number;
+}
