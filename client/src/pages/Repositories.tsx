@@ -24,12 +24,16 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import toast from 'react-hot-toast';
+import { useConnectRepository } from '@/hooks/useConnectRepository';
 
 type ConnectionFilter = 'all' | 'connected' | 'not-connected';
 
 export default function Repositories() {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useRepositories();
+
+  const { mutate: connectRepo, isLoading: connectLoading } = useConnectRepository();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [connectionFilter, setConnectionFilter] = useState<ConnectionFilter>('all');
@@ -131,8 +135,15 @@ export default function Repositories() {
 
   const handleConnectRepo = (repo: Repository) => {
     setLocalConnectingID(repo.id);
-    // Simulate connection (replace with actual logic)
-    setTimeout(() => setLocalConnectingID(null), 2000);
+    const final = {
+      owner: repo.fullName.split('/')[0],
+      repo: repo.name,
+      githubId: repo.id,
+    };
+
+    connectRepo(final, {
+      onSettled: () => setLocalConnectingID(null),
+    });
   };
 
   // Get counts for filter options

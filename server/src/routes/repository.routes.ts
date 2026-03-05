@@ -1,8 +1,12 @@
 import { Router } from 'express';
-import { fetchRepositories } from '../controllers/repository.controller';
+import { fetchRepositories, connectRepository } from '../controllers/repository.controller';
 
 const router = Router();
 
-router.get('/repositories', fetchRepositories);
+// Fetch user's GitHub repositories with connection status
+router.get('/', fetchRepositories);
+
+// Connect a GitHub repository and create webhook
+router.post('/connect', connectRepository);
 
 export default router;

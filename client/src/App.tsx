@@ -6,11 +6,29 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import NotFound from './pages/NotFound';
 import DashboardLayout from './layouts/DashboardLayout';
 import Repositories from './pages/Repositories';
+import { Toaster } from 'react-hot-toast';
+import { useTheme } from './components/theme-provider';
 
 function App() {
   const { data: currentSession, isPending: sessionPending } = useSession();
+  const { theme } = useTheme();
 
   if (sessionPending) return <LoadingSpinner />;
+
+  const toastOptions =
+    theme === 'dark'
+      ? {
+          style: {
+            background: '#0A0A0A',
+            color: '#fff',
+          },
+        }
+      : { 
+          style: {
+            background: '#ffffff',
+            color: '#000',
+          },
+        };
 
   return (
     <div
@@ -29,6 +47,8 @@ function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
+
+      <Toaster position="bottom-right" toastOptions={toastOptions} />
     </div>
   );
 }

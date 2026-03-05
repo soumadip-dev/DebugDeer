@@ -1,11 +1,12 @@
 import type { Request, Response } from 'express';
-import { getRepositories } from '../lib/github';
+import { createWebhook, getRepositories } from '../lib/github';
 import { db } from '../db';
 import { repository } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { fromNodeHeaders } from 'better-auth/node';
 import { auth } from '../lib/auth';
 import logger from '../utils/logger.utils';
+import { randomUUID } from 'crypto';
 
 //* Controller to get repositories from GitHub API
 const fetchRepositories = async (req: Request, res: Response) => {
@@ -67,4 +68,65 @@ const fetchRepositories = async (req: Request, res: Response) => {
   }
 };
 
-export { fetchRepositories };
+
+//* Controller to connect a GitHub repository to the system
+const connectRepository = async (req: Request, res: Response) => {
+  try {
+    // Get session from request
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    // Validate authentication
+    if (!session) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Extract repository details from request body
+    const { owner, repo, githubId } = req.body;
+
+    // Validate required fields
+    if (!owner || !repo || !githubId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // TODO: Check if user can connect more repo
+    // Incomplete: enforce repository connection limit based on subscription/usage plan
+
+    // Create webhook in GitHub repository
+    const webhook = await createWebhook(owner, repo, req);
+
+    // If webhook creation succeeded, store repository in database
+    if (webhook) {
+      await db.insert(repository).values({
+        id: randomUUID(),
+        githubId: Number(githubId), // Ensure githubId is stored as number
+        name: repo,
+        fullName: `${owner}/${repo}`,
+        url: `https://github.com/${owner}/${repo}`,
+        userId: session.user.id,
+      });
+    }
+
+    // TODO: Increment repository count for usage tracking
+    // Incomplete: update user's usage statistics / subscription usage table
+
+    // TODO: Trigger Repository indexing for RAG (fire and forget)
+    // Incomplete: send repository to background worker / queue for code indexing
+
+    return res.status(200).json({
+      success: true,
+      message: 'Repository connected successfully',
+      data: webhook,
+    });
+  } catch (error) {
+    logger.error('Error connecting repository:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to connect repository',
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export { fetchRepositories, connectRepository };
