@@ -17,8 +17,8 @@
 - ⚙️ **Repository-level insights** with contextual feedback
 - 🤖 **Developer-friendly comments** directly on PRs
 - ⚡ **Fast and scalable architecture** for real-time analysis
-- 🧩 **Language-agnostic design** with extensible rule engine
-- 🚀 **CI/CD friendly** and easy to integrate into existing workflows
+- 🧩 **Language-agnostic design** with an extensible rule engine
+- 🚀 **CI/CD-friendly** and easy to integrate into existing workflows
 
 ## ⚙️ Tech Stack
 
@@ -26,8 +26,8 @@
 - **🌐 Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
 - **🛠 Backend**: Express.js, TypeScript, Bun
 - **🔐 Authentication**: Better Auth
-- **🔄 Integrations**: GitHub Webhooks, REST APIs
-- **📦 Database**: PostgreSQL
+- **🔄 Integrations**: GitHub Webhooks, REST APIs, Octokit
+- **📦 Database**: PostgreSQL, Drizzle ORM
 
 <!--
 ## 🤸 Installation

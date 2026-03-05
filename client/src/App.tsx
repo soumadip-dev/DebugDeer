@@ -8,6 +8,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Repositories from './pages/Repositories';
 import { Toaster } from 'react-hot-toast';
 import { useTheme } from './components/theme-provider';
+import Settings from './pages/Settings';
 
 function App() {
   const { data: currentSession, isPending: sessionPending } = useSession();
@@ -23,7 +24,7 @@ function App() {
             color: '#fff',
           },
         }
-      : { 
+      : {
           style: {
             background: '#ffffff',
             color: '#000',
@@ -42,7 +43,7 @@ function App() {
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/repositories" element={<Repositories />} />
           <Route path="/reviews" element={<div>Reviews</div>} />
-          <Route path="/settings" element={<div>Settings</div>} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
