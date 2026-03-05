@@ -2,31 +2,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { profileSchema, type ProfileFormValues } from '@/lib/validations/profile';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useUserProfile, useUpdateUserProfile } from '@/hooks/useUser';
 import type { UpdateUserProfileParams } from '@/types/user';
 
 export function ProfileForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-
   const { data: profile, isLoading, error } = useUserProfile();
   const updateMutation = useUpdateUserProfile();
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty, isValid },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+    },
+    mode: 'onChange',
+  });
+
   useEffect(() => {
     if (profile) {
-      setName(profile.name || '');
-      setEmail(profile.email || '');
+      reset({
+        name: profile.name || '',
+        email: profile.email || '',
+      });
     }
-  }, [profile]);
+  }, [profile, reset]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = (data: ProfileFormValues) => {
     const updates: UpdateUserProfileParams = {};
-    if (name !== profile?.name) updates.name = name;
-    if (email !== profile?.email) updates.email = email;
+
+    // Only include fields that have changed
+    if (data.name !== profile?.name) updates.name = data.name;
+    if (data.email !== profile?.email) updates.email = data.email;
 
     if (Object.keys(updates).length === 0) {
       toast.error('No changes to save');
@@ -37,6 +53,10 @@ export function ProfileForm() {
       onSuccess: data => {
         if (data?.success) {
           toast.success('Profile updated successfully');
+          reset({
+            name: data.data.name,
+            email: data.data.email,
+          });
         }
       },
       onError: (error: Error) => {
@@ -93,31 +113,48 @@ export function ProfileForm() {
         <CardDescription>Update your profile information</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
               id="name"
               placeholder="John Doe"
-              value={name}
-              onChange={e => setName(e.target.value)}
+              {...register('name')}
               disabled={updateMutation.isPending}
+              className={errors.name ? 'border-red-500' : ''}
             />
+            {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="john@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              {...register('email')}
               disabled={updateMutation.isPending}
+              className={errors.email ? 'border-red-500' : ''}
             />
+            {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
           </div>
-          <Button type="submit" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-          </Button>
+
+          <div className="flex gap-3">
+            <Button type="submit" disabled={updateMutation.isPending || !isDirty || !isValid}>
+              {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+
+            {isDirty && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => reset()}
+                disabled={updateMutation.isPending}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>
