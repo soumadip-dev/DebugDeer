@@ -12,6 +12,7 @@ import healthRoutes from './routes/health.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import repositoryRoutes from './routes/repository.routes';
 import webhookRoutes from './routes/webhook.routes';
+import settingsRoutes from './routes/settings.routes';
 
 import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 
@@ -53,6 +54,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/repo', repositoryRoutes);
 app.use('/api/webhook', webhookRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error handling middlewares
 app.use(notFound);
