@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { GitCommit, GitPullRequest, MessageSquare, GitBranch, Loader2 } from 'lucide-react';
+import { GitCommit, GitPullRequest, MessageSquare, GitBranch } from 'lucide-react';
 import ContributionGraph from '@/components/ContributionGraph';
 import { useDashboardData } from '@/hooks/useDashboard';
 
@@ -106,7 +106,7 @@ export default function DashBoard() {
         </CardContent>
       </Card>
 
-       <Card className="border-border/50 hover:shadow-md transition-all duration-300">
+      <Card className="border-border/50 hover:shadow-md transition-all duration-300">
         <CardHeader className="space-y-1 pb-4">
           <CardTitle className="text-lg sm:text-xl">Activity Overview</CardTitle>
           <CardDescription className="text-sm">
@@ -115,10 +115,15 @@ export default function DashBoard() {
         </CardHeader>
         <CardContent>
           {activityLoading ? (
-            <div className="h-[300px] sm:h-[400px] w-full flex items-center justify-center">
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Loading activity data...</p>
+            <div className="w-full flex flex-col items-center justify-center py-12 sm:py-16">
+              <div className="space-y-4 text-center">
+                <div className="relative">
+                  <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-r from-transparent via-primary/10 to-transparent blur-xl" />
+                  <div className="relative h-8 w-8 sm:h-10 sm:w-10 animate-spin rounded-full border-4 border-muted border-t-primary mx-auto" />
+                </div>
+                <p className="text-sm text-muted-foreground animate-pulse">
+                  Loading activity data...
+                </p>
               </div>
             </div>
           ) : (
