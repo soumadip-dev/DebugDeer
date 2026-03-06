@@ -10,6 +10,7 @@ import {
   Star,
   Loader2,
   Filter,
+  GitBranch,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Repository } from '../types/repository';
@@ -24,8 +25,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import toast from 'react-hot-toast';
-import { useConnectRepository } from '@/hooks/useConnectRepository';
+import { useConnectRepository } from '@/hooks/useRepositories';
 
 type ConnectionFilter = 'all' | 'connected' | 'not-connected';
 
@@ -33,7 +33,7 @@ export default function Repositories() {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useRepositories();
 
-  const { mutate: connectRepo, isLoading: connectLoading } = useConnectRepository();
+  const { mutate: connectRepo } = useConnectRepository();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [connectionFilter, setConnectionFilter] = useState<ConnectionFilter>('all');
@@ -65,7 +65,7 @@ export default function Repositories() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 md:space-y-8">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Repositories
@@ -74,7 +74,7 @@ export default function Repositories() {
             Manage and connect your GitHub repositories
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative max-w-md flex-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -95,7 +95,7 @@ export default function Repositories() {
 
   if (isError) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 md:space-y-8">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Repositories
@@ -104,10 +104,14 @@ export default function Repositories() {
             Manage and connect your GitHub repositories
           </p>
         </div>
-        <Card className="border-border/50">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-destructive mb-4">Failed to load repositories</p>
-            <Button onClick={() => window.location.reload()} variant="outline">
+        <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="rounded-full bg-destructive/10 p-4 mb-4">
+              <div className="text-3xl">⚠️</div>
+            </div>
+            <p className="text-sm font-medium text-destructive mb-2">Failed to load repositories</p>
+            <p className="text-xs text-muted-foreground mb-4">Please try again</p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="h-9">
               Try Again
             </Button>
           </CardContent>
@@ -119,12 +123,10 @@ export default function Repositories() {
   const allRepositories = data?.pages.flatMap(page => page.data) || [];
 
   const filteredRepositories = allRepositories.filter((repo: Repository) => {
-    // search filter
     const matchesSearch =
       repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       repo.fullName.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // connection filter
     const matchesConnection =
       connectionFilter === 'all' ||
       (connectionFilter === 'connected' && repo.connected) ||
@@ -146,12 +148,11 @@ export default function Repositories() {
     });
   };
 
-  // Get counts for filter options
   const connectedCount = allRepositories.filter((r: Repository) => r.connected).length;
   const notConnectedCount = allRepositories.filter((r: Repository) => !r.connected).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       <div className="space-y-1">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           Repositories
@@ -166,7 +167,7 @@ export default function Repositories() {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search repositories..."
-            className="pl-9 h-9 bg-muted/40 border-border/60 focus-visible:ring-1 focus-visible:ring-offset-0"
+            className="pl-9 h-9 bg-background border-border/60 focus-visible:ring-1 focus-visible:ring-offset-0"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -174,7 +175,7 @@ export default function Repositories() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9">
+            <Button variant="outline" className="h-9 border-border/60">
               <Filter className="h-4 w-4 mr-2" />
               {connectionFilter === 'all' && 'All Repositories'}
               {connectionFilter === 'connected' && 'Connected'}
@@ -186,13 +187,13 @@ export default function Repositories() {
               value={connectionFilter}
               onValueChange={value => setConnectionFilter(value as ConnectionFilter)}
             >
-              <DropdownMenuRadioItem value="all">
+              <DropdownMenuRadioItem value="all" className="cursor-pointer">
                 All ({allRepositories.length})
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="connected">
+              <DropdownMenuRadioItem value="connected" className="cursor-pointer">
                 Connected ({connectedCount})
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="not-connected">
+              <DropdownMenuRadioItem value="not-connected" className="cursor-pointer">
                 Not Connected ({notConnectedCount})
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
@@ -201,18 +202,22 @@ export default function Repositories() {
       </div>
 
       {filteredRepositories.length === 0 ? (
-        <Card className="border-border/50">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-2">No repositories found</p>
-            <p className="text-sm text-muted-foreground">
+        <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="rounded-full bg-muted/30 p-4 mb-4">
+              <GitBranch className="h-8 w-8 text-muted-foreground/50" />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">No repositories found</p>
+            <p className="text-xs text-muted-foreground/60 mb-4">
               {searchQuery
                 ? 'Try adjusting your search query'
                 : 'Try changing your filter selection'}
             </p>
             {(connectionFilter !== 'all' || searchQuery) && (
               <Button
-                variant="link"
-                className="mt-2"
+                variant="outline"
+                size="sm"
+                className="h-8"
                 onClick={() => {
                   setSearchQuery('');
                   setConnectionFilter('all');
@@ -228,7 +233,7 @@ export default function Repositories() {
           {filteredRepositories.map((repo: Repository) => (
             <Card
               key={repo.id}
-              className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden"
+              className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden group"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-4">
@@ -247,12 +252,19 @@ export default function Repositories() {
                         </Badge>
                       )}
 
-                      {repo.connected && (
+                      {repo.connected ? (
                         <Badge
                           variant="secondary"
                           className="text-xs bg-green-500/10 text-green-600 border-green-500/20 font-normal"
                         >
                           Connected
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-muted/20 border-border/60 font-normal"
+                        >
+                          Available
                         </Badge>
                       )}
                     </div>
@@ -269,7 +281,7 @@ export default function Repositories() {
                       variant="ghost"
                       size="icon"
                       asChild
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground hover:text-foreground h-9 w-9"
                     >
                       <a href={repo.url} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4" />
@@ -280,7 +292,11 @@ export default function Repositories() {
                       onClick={() => handleConnectRepo(repo)}
                       variant={repo.connected ? 'outline' : 'default'}
                       size="sm"
-                      className="min-w-[80px]"
+                      className={`min-w-[90px] h-9 ${
+                        repo.connected
+                          ? 'border-border/60 hover:bg-muted/50'
+                          : 'shadow-sm hover:shadow-md'
+                      }`}
                       disabled={localConnectingID === repo.id}
                     >
                       {localConnectingID === repo.id ? (
@@ -327,7 +343,14 @@ export default function Repositories() {
                   {repo.updatedAt && (
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-4 w-4" />
-                      <span>Updated {new Date(repo.updatedAt).toLocaleDateString()}</span>
+                      <span>
+                        Updated{' '}
+                        {new Date(repo.updatedAt).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -344,8 +367,8 @@ export default function Repositories() {
           </div>
         )}
         {!hasNextPage && allRepositories.length > 0 && (
-          <p className="text-center text-sm text-muted-foreground py-4">
-            No more repositories to load
+          <p className="text-center text-xs text-muted-foreground/60 py-4">
+            You've reached the end of the list
           </p>
         )}
       </div>

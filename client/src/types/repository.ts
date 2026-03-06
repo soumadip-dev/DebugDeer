@@ -33,3 +33,27 @@ export interface ConnectRepositoryParams {
   repo: string;
   githubId: number;
 }
+
+export interface ConnectedRepository {
+  id: string;
+  name: string;
+  fullName: string;
+  url: string;
+  createdAt: string;
+}
+
+export interface ConnectedRepositoriesResponse {
+  success: boolean;
+  message: string;
+  data: ConnectedRepository[];
+}
+
+export interface DisconnectRepositoryResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface DisconnectAllRepositoriesResponse {
+  success: boolean;
+  message: string;
+}

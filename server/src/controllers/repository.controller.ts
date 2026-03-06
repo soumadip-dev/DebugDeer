@@ -17,6 +17,7 @@ const fetchRepositories = async (req: Request, res: Response) => {
     });
 
     if (!session) {
+      logger.error('Unauthorized');
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
@@ -67,7 +68,6 @@ const fetchRepositories = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 //* Controller to connect a GitHub repository to the system
 const connectRepository = async (req: Request, res: Response) => {

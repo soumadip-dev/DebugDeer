@@ -86,7 +86,7 @@ async function getRepositories(page: number = 1, perPage: number = 10, req: Requ
 }
 
 //* Creates a webhook for a repository on GitHub.
-const createWebhook = async (owner: string, repo: string, req: Request) => {
+async function createWebhook(owner: string, repo: string, req: Request) {
   try {
     const token = await getGithubToken(req);
     const octokit = new Octokit({ auth: token });
@@ -119,6 +119,38 @@ const createWebhook = async (owner: string, repo: string, req: Request) => {
     logger.error('Failed to create webhook:', error);
     throw new Error('Webhook creation failed');
   }
-};
+}
 
-export { getGithubToken, fetchUserContributions, getRepositories, createWebhook };
+//* Deletes a webhook for a repository on GitHub.
+async function deleteWebhook(owner: string, repo: string, req: Request) {
+  try {
+    const token = await getGithubToken(req);
+    const octokit = new Octokit({ auth: token });
+
+    const webhookUrl = `${env.PUBLIC_APP_BASE_URL}api/webhook/github`;
+
+    const { data: hooks } = await octokit.rest.repos.listWebhooks({
+      owner,
+      repo,
+    });
+
+    const hookToDelete = hooks.find(hook => hook.config?.url === webhookUrl);
+
+    if (!hookToDelete) {
+      return { success: false };
+    }
+
+    await octokit.rest.repos.deleteWebhook({
+      owner,
+      repo,
+      hook_id: hookToDelete.id,
+    });
+
+    return { success: true };
+  } catch (error) {
+    logger.error('Failed to delete webhook:', error);
+    throw new Error('Webhook deletion failed');
+  }
+}
+
+export { getGithubToken, fetchUserContributions, getRepositories, createWebhook, deleteWebhook };
