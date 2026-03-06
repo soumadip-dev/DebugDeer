@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useUserProfile, useUpdateUserProfile } from '@/hooks/useUser';
 import type { UpdateUserProfileParams } from '@/types/user';
+import { User, Mail, Loader2 } from 'lucide-react';
 
 export function ProfileForm() {
   const { data: profile, isLoading, error } = useUserProfile();
@@ -40,7 +41,6 @@ export function ProfileForm() {
   const onSubmit = (data: ProfileFormValues) => {
     const updates: UpdateUserProfileParams = {};
 
-    // Only include fields that have changed
     if (data.name !== profile?.name) updates.name = data.name;
     if (data.email !== profile?.email) updates.email = data.email;
 
@@ -65,17 +65,20 @@ export function ProfileForm() {
     });
   };
 
-  // Show error state
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Settings</CardTitle>
-          <CardDescription>Update your profile information</CardDescription>
+      <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-lg sm:text-xl">Profile Settings</CardTitle>
+          <CardDescription className="text-sm">Update your profile information</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-red-500">
-            Failed to load profile. Please try again later.
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="rounded-full bg-destructive/10 p-3 mb-4">
+              <div className="text-2xl">⚠️</div>
+            </div>
+            <p className="text-sm font-medium text-destructive">Failed to load profile</p>
+            <p className="text-xs text-muted-foreground mt-1">Please try again later</p>
           </div>
         </CardContent>
       </Card>
@@ -84,22 +87,22 @@ export function ProfileForm() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Settings</CardTitle>
-          <CardDescription>Update your profile information</CardDescription>
+      <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-lg sm:text-xl">Profile Settings</CardTitle>
+          <CardDescription className="text-sm">Update your profile information</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse space-y-4">
+          <div className="space-y-6">
             <div className="space-y-2">
-              <div className="h-4 bg-muted rounded w-20"></div>
-              <div className="h-10 bg-muted rounded"></div>
+              <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+              <div className="h-10 bg-muted rounded animate-pulse" />
             </div>
             <div className="space-y-2">
-              <div className="h-4 bg-muted rounded w-20"></div>
-              <div className="h-10 bg-muted rounded"></div>
+              <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+              <div className="h-10 bg-muted rounded animate-pulse" />
             </div>
-            <div className="h-10 bg-muted rounded w-32"></div>
+            <div className="h-10 w-32 bg-muted rounded animate-pulse" />
           </div>
         </CardContent>
       </Card>
@@ -107,41 +110,64 @@ export function ProfileForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Profile Settings</CardTitle>
-        <CardDescription>Update your profile information</CardDescription>
+    <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+      <CardHeader className="space-y-1 pb-4">
+        <CardTitle className="text-lg sm:text-xl">Profile Settings</CardTitle>
+        <CardDescription className="text-sm">Update your profile information</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              placeholder="John Doe"
-              {...register('name')}
-              disabled={updateMutation.isPending}
-              className={errors.name ? 'border-red-500' : ''}
-            />
-            {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
+            <Label htmlFor="name" className="text-sm font-medium">
+              Full Name
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="name"
+                placeholder="John Doe"
+                {...register('name')}
+                disabled={updateMutation.isPending}
+                className={`pl-9 ${errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+              />
+            </div>
+            {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="john@example.com"
-              {...register('email')}
-              disabled={updateMutation.isPending}
-              className={errors.email ? 'border-red-500' : ''}
-            />
-            {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="john@example.com"
+                {...register('email')}
+                disabled={updateMutation.isPending}
+                className={`pl-9 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-xs text-destructive mt-1">{errors.email.message}</p>
+            )}
           </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" disabled={updateMutation.isPending || !isDirty || !isValid}>
-              {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="submit"
+              disabled={updateMutation.isPending || !isDirty || !isValid}
+              className="min-w-[100px]"
+            >
+              {updateMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </Button>
 
             {isDirty && (
