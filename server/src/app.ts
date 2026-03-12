@@ -1,11 +1,13 @@
 import type { Express, NextFunction, Request, Response } from 'express';
 
 import express from 'express';
+import { serve } from 'inngest/express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler, notFound } from './middlewares/error.middleware';
 import configureCors from './config/cors.config';
 import { auth } from './lib/auth.ts';
+import { inngest, functions } from './inngest/client';
 
 import logger from './utils/logger.utils';
 import healthRoutes from './routes/health.routes';
@@ -55,6 +57,11 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/repo', repositoryRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use(
+  // Expose the middleware on our recommended path at `/api/inngest`.
+  '/api/inngest',
+  serve({ client: inngest, functions })
+);
 
 // Error handling middlewares
 app.use(notFound);
