@@ -7,6 +7,7 @@ import { fromNodeHeaders } from 'better-auth/node';
 import { auth } from '../lib/auth';
 import logger from '../utils/logger.utils';
 import { randomUUID } from 'crypto';
+import { inngest } from '../inngest/client';
 
 //* Controller to get repositories from GitHub API
 const fetchRepositories = async (req: Request, res: Response) => {
@@ -111,8 +112,19 @@ const connectRepository = async (req: Request, res: Response) => {
     // TODO: Increment repository count for usage tracking
     // Incomplete: update user's usage statistics / subscription usage table
 
-    // TODO: Trigger Repository indexing for RAG (fire and forget)
-    // Incomplete: send repository to background worker / queue for code indexing
+    // Trigger repository indexing for RAG
+    try {
+      await inngest.send({
+        name: 'repository.connected',
+        data: {
+          owner,
+          repo,
+          userId: session.user.id,
+        },
+      });
+    } catch (error) {
+      logger.error('Failed to trigger repository indexing:', error);
+    }
 
     return res.status(200).json({
       success: true,

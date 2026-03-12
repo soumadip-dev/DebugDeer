@@ -1,17 +1,32 @@
 import { Inngest } from 'inngest';
+import { db } from '../db';
+import { and, eq } from 'drizzle-orm';
+import { account } from '../db/schema';
+import { getRepoFileContents } from '../lib/github';
 
 export const inngest = new Inngest({ id: 'debug-deer' });
 
-const helloWorld = inngest.createFunction(
-  { id: 'hello-world' }, // 1st arg: function config
-  { event: 'test/hello.world' }, // 2nd arg: trigger (NOT inside triggers:[])
+const indexRepo = inngest.createFunction(
+  { id: 'index-repo' },
+  { event: 'repository.connected' },
   async ({ event, step }) => {
-    // 3rd arg: handler
-    await step.sleep('wait-a-second', '1s');
-    return {
-      message: `Hello ${event.data.email}`,
-    };
+    const { owner, repo, userId } = event.data;
+    // step 1: fetch all the files from the repository
+    const files = await step.run('fetch-files', async () => {
+      const findAccount = await db.query.account.findFirst({
+        where: and(eq(account.id, userId), eq(account.providerId, 'github')),
+      });
+      if (!findAccount?.accessToken) {
+        throw new Error('No GitHub access token found');
+      }
+
+      return await getRepoFileContents(findAccount.accessToken, owner, repo);
+    });
+    // step 2:
+    await step.run('index-codebase', async () => {
+      // await indexCodebase
+    });
   }
 );
 
-export const functions = [helloWorld];
+export const functions = [indexRepo];

@@ -153,4 +153,67 @@ async function deleteWebhook(owner: string, repo: string, req: Request) {
   }
 }
 
-export { getGithubToken, fetchUserContributions, getRepositories, createWebhook, deleteWebhook };
+async function getRepoFileContents(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string = ''
+): Promise<{ path: string; content: string }[]> {
+  try {
+    const octokit = new Octokit({ auth: token });
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path,
+    });
+
+    if (!Array.isArray(data)) {
+      if (data.type === 'file' && data.content) {
+        return [
+          {
+            path: data.path,
+            content: Buffer.from(data.content, 'base64').toString('utf-8'),
+          },
+        ];
+      }
+      return [];
+    }
+
+    let files: { path: string; content: string }[] = [];
+    for (const file of data) {
+      if (file.type === 'file') {
+        const { data: fileData } = await octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: file.path,
+        });
+
+        if (!Array.isArray(fileData) && fileData.type === 'file' && fileData.content) {
+          if (file.path.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|pdf|zip|tar|gz|exe|dll|bin)$/i)) {
+            files.push({
+              path: file.path,
+              content: Buffer.from(fileData.content, 'base64').toString('utf-8'),
+            });
+          }
+        }
+      } else if (file.type === 'dir') {
+        const subFiles = await getRepoFileContents(token, owner, repo, file.path);
+
+        files = files.concat(subFiles);
+      }
+    }
+    return files;
+  } catch (error) {
+    logger.error('Failed to get repository file contents:', error);
+    throw new Error('Failed to get repository file contents');
+  }
+}
+
+export {
+  getGithubToken,
+  fetchUserContributions,
+  getRepositories,
+  createWebhook,
+  deleteWebhook,
+  getRepoFileContents,
+};
