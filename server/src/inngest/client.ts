@@ -3,6 +3,7 @@ import { db } from '../db';
 import { and, eq } from 'drizzle-orm';
 import { account } from '../db/schema';
 import { getRepoFileContents } from '../lib/github';
+import { indexCodebase } from '../lib/rag';
 
 export const inngest = new Inngest({ id: 'debug-deer' });
 
@@ -14,7 +15,7 @@ const indexRepo = inngest.createFunction(
     // step 1: fetch all the files from the repository
     const files = await step.run('fetch-files', async () => {
       const findAccount = await db.query.account.findFirst({
-        where: and(eq(account.id, userId), eq(account.providerId, 'github')),
+        where: and(eq(account.userId, userId), eq(account.providerId, 'github')),
       });
       if (!findAccount?.accessToken) {
         throw new Error('No GitHub access token found');
@@ -24,8 +25,9 @@ const indexRepo = inngest.createFunction(
     });
     // step 2:
     await step.run('index-codebase', async () => {
-      // await indexCodebase
+      await indexCodebase(`${owner}/${repo}`, files);
     });
+    return { success: true, indexedFiles: files.length };
   }
 );
 
