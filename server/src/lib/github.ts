@@ -189,7 +189,7 @@ async function getRepoFileContents(
         });
 
         if (!Array.isArray(fileData) && fileData.type === 'file' && fileData.content) {
-          if (file.path.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|pdf|zip|tar|gz|exe|dll|bin)$/i)) {
+          if (!file.path.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|pdf|zip|tar|gz|exe|dll|bin)$/i)) {
             files.push({
               path: file.path,
               content: Buffer.from(fileData.content, 'base64').toString('utf-8'),
