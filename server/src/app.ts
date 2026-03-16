@@ -15,6 +15,7 @@ import dashboardRoutes from './routes/dashboard.routes';
 import repositoryRoutes from './routes/repository.routes';
 import webhookRoutes from './routes/webhook.routes';
 import settingsRoutes from './routes/settings.routes';
+import reviewsRoutes from './routes/reviews.routes';
 
 import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 
@@ -57,6 +58,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/repo', repositoryRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/reviews', reviewsRoutes);
 app.use(
   // Expose the middleware on our recommended path at `/api/inngest`.
   '/api/inngest',

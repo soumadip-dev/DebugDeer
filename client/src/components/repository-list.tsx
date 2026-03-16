@@ -96,25 +96,25 @@ const RepositoryList = () => {
                 Disconnect All
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="sm:max-w-md">
               <AlertDialogHeader>
                 <AlertDialogTitle className="flex items-center gap-2 text-lg">
                   <AlertTriangle className="h-5 w-5 text-destructive" />
                   Disconnect All Repositories?
                 </AlertDialogTitle>
-                <AlertDialogDescription className="text-sm">
+                <AlertDialogDescription className="text-sm text-muted-foreground">
                   This will disconnect all {connectedRepos.length} repositories and remove their
                   webhooks. You'll need to reconnect them individually to resume AI code reviews.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter className="gap-2 sm:gap-0">
-                <AlertDialogCancel disabled={disconnectAllRepos.isPending}>
+              <AlertDialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-2 mt-4">
+                <AlertDialogCancel disabled={disconnectAllRepos.isPending} className="mt-0 sm:mt-0">
                   Cancel
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDisconnectAll}
                   disabled={disconnectAllRepos.isPending}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm hover:shadow-md transition-all"
                 >
                   {disconnectAllRepos.isPending ? (
                     <>
