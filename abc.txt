@@ -18,4 +18,4 @@ npx --ignore-scripts=false inngest-cli@latest dev -u http://localhost:8080/api/i
 
 
 VIDEO: 
-https://youtu.be/my29RqLL-vg?si=mrZKHcHTIU8TDcKi&t=19896
+https://youtu.be/my29RqLL-vg?si=a5ehx_LkvUHRkNYV&t=23670
