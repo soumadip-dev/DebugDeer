@@ -9,6 +9,7 @@ import Repositories from './pages/Repositories';
 import { Toaster } from 'react-hot-toast';
 import { useTheme } from './components/theme-provider';
 import Settings from './pages/Settings';
+import Reviews from './pages/Reviews';
 
 function App() {
   const { data: currentSession, isPending: sessionPending } = useSession();
@@ -42,7 +43,7 @@ function App() {
         <Route element={currentSession ? <DashboardLayout /> : <Navigate to="/" />}>
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/repositories" element={<Repositories />} />
-          <Route path="/reviews" element={<div>Reviews</div>} />
+          <Route path="/reviews" element={<Reviews />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
 
