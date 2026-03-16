@@ -86,32 +86,17 @@ For each modified file:
 - **Key observations:** Design patterns, potential impacts, or notable implementation details
 - **Concerns:** Any issues specific to this file (if none, state "No issues detected")
 
-### 3. 🔄 Visual Architecture
-**Analyze the changes and select the MOST appropriate diagram type based on what the PR modifies:**
-
-#### Choose ONE diagram type that best represents the changes:
-
-| If changes involve... | Use this diagram |
-|----------------------|------------------|
-| API calls, event handlers, service interactions, function chains | **Sequence Diagram** - Show interaction flow between components |
-| Business logic, validation flows, conditional branches, decision trees | **Flowchart** - Illustrate logic paths and decisions |
-| Class hierarchies, interfaces, OOP design patterns | **Class Diagram** - Show relationships, inheritance, composition |
-| State machines, status transitions, workflow stages | **State Diagram** - Visualize state changes and transitions |
-| Database schemas, models, relationships | **Entity Relationship Diagram** - Show data structure and relations |
-| Component architecture, module dependencies | **Component Diagram** - Illustrate system structure and dependencies |
-
-**For the selected diagram type:**
-- Use **Mermaid.js** syntax inside \`\`\`mermaid\`\`\` blocks
-- Keep participant/entity names alphanumeric (no spaces, quotes, or special chars)
-- Focus ONLY on the new/modified flow - avoid showing unchanged parts
-- Limit to 5-7 key elements for clarity
-- Add brief notes only when necessary, using plain text
+### 3. 🔄 Flow Visualization
+If the changes involve logic flow, data transformation, or component interaction, provide a **Mermaid sequence diagram** using these rules:
+- Use only alphanumeric participant names (no spaces, quotes, or special chars)
+- Keep notes simple without brackets or parentheses
+- Focus exclusively on the new/modified flow
 
 \`\`\`mermaid
-[Your diagram here - choose the appropriate type based on changes]
+[Your diagram here]
 \`\`\`
 
-If the changes are trivial, purely cosmetic, or don't involve any logical flow: *"No diagram needed for these changes."*
+If no meaningful flow exists: *"No sequence diagram needed for these changes."*
 
 ### 4. ✅ What's Working Well
 List specific strengths (3-5 bullet points) about this PR:
@@ -174,7 +159,6 @@ End with a creative, relevant poem (4-6 lines) that playfully summarizes the cha
 - Suggest solutions, not just problems
 - Consider the broader system impact
 - Acknowledge good work genuinely
-- **Choose diagrams intelligently** - match the type to what the PR changes
 
 Remember: Your review should help the author improve both this code and their future contributions.`;
 
@@ -211,4 +195,5 @@ Remember: Your review should help the author improve both this code and their fu
     return { success: true };
   }
 );
+
 export const functions = [indexRepo, generateReview];
