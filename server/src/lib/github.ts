@@ -1,12 +1,13 @@
 import { Octokit } from 'octokit';
 import { auth } from './auth';
 import { db } from '../db';
-import { account } from '../db/schema';
+import { account, repository, review } from '../db/schema';
 import { fromNodeHeaders } from 'better-auth/node';
 import { eq, and } from 'drizzle-orm';
 import type { Request } from 'express';
 import logger from '../utils/logger.utils';
 import { env } from '../config/env.config';
+import { inngest } from '../inngest/client';
 
 //* Retrieves the GitHub access token for the authenticated user from the database.
 async function getGithubToken(req: Request): Promise<string> {
@@ -153,4 +154,180 @@ async function deleteWebhook(owner: string, repo: string, req: Request) {
   }
 }
 
-export { getGithubToken, fetchUserContributions, getRepositories, createWebhook, deleteWebhook };
+//* Fetches the contents of all files in a repository.
+async function getRepoFileContents(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string = ''
+): Promise<{ path: string; content: string }[]> {
+  try {
+    const octokit = new Octokit({ auth: token });
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path,
+    });
+
+    if (!Array.isArray(data)) {
+      if (data.type === 'file' && data.content) {
+        return [
+          {
+            path: data.path,
+            content: Buffer.from(data.content, 'base64').toString('utf-8'),
+          },
+        ];
+      }
+      return [];
+    }
+
+    let files: { path: string; content: string }[] = [];
+    for (const file of data) {
+      if (file.type === 'file') {
+        const { data: fileData } = await octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: file.path,
+        });
+
+        if (!Array.isArray(fileData) && fileData.type === 'file' && fileData.content) {
+          if (!file.path.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|pdf|zip|tar|gz|exe|dll|bin)$/i)) {
+            files.push({
+              path: file.path,
+              content: Buffer.from(fileData.content, 'base64').toString('utf-8'),
+            });
+          }
+        }
+      } else if (file.type === 'dir') {
+        const subFiles = await getRepoFileContents(token, owner, repo, file.path);
+
+        files = files.concat(subFiles);
+      }
+    }
+    return files;
+  } catch (error) {
+    logger.error('Failed to get repository file contents:', error);
+    throw new Error('Failed to get repository file contents');
+  }
+}
+
+//* Fetches the diff of a pull request.
+async function getPullRequestDiff(token: string, owner: string, repo: string, prNumber: number) {
+  try {
+    const octokit = new Octokit({ auth: token });
+    const { data: pr } = await octokit.rest.pulls.get({ owner, repo, pull_number: prNumber });
+
+    const { data: diff } = await octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number: prNumber,
+      mediaType: {
+        format: 'diff',
+      },
+    });
+
+    return {
+      diff: diff as unknown as string,
+      title: pr.title,
+      description: pr.body || '',
+    };
+  } catch (error) {
+    logger.error('Failed to get pull request diff:', error);
+    throw new Error('Failed to get pull request diff');
+  }
+}
+
+//* Reviews a pull request.
+async function reviewPullRequest(owner: string, repo: string, prNumber: number) {
+  try {
+    const repoData = await db.query.repository.findFirst({
+      where: eq(repository.fullName, `${owner}/${repo}`),
+      with: {
+        user: {
+          with: {
+            accounts: {
+              where: eq(account.providerId, 'github'),
+            },
+          },
+        },
+      },
+    });
+
+    if (!repoData) {
+      throw new Error(
+        `Repository ${owner}/${repo} not found in database. Please reconnect the repository.`
+      );
+    }
+
+    const githubAccount = repoData.user.accounts[0];
+    if (!githubAccount?.accessToken) {
+      throw new Error(`No GitHub access token found for user ${repoData.user.id}.`);
+    }
+
+    const token = githubAccount.accessToken;
+    const { title } = await getPullRequestDiff(token, owner, repo, prNumber);
+
+    await inngest.send({
+      name: 'pr.review.requested',
+      data: { owner, repo, prNumber, userId: repoData.user.id },
+    });
+
+    return { success: true, message: 'PR review queued successfully' };
+  } catch (error) {
+    logger.error('Failed to review pull request:', error);
+
+    try {
+      const repoData = await db.query.repository.findFirst({
+        where: eq(repository.fullName, `${owner}/${repo}`),
+      });
+
+      if (repoData) {
+        await db.insert(review).values({
+          repositoryId: repoData.id,
+          prNumber,
+          prTitle: 'Failed to fetch PR',
+          prUrl: `https://github.com/${owner}/${repo}/pull/${prNumber}`,
+          review: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          status: 'failed',
+        });
+      }
+    } catch (dbError) {
+      logger.error('Failed to insert review in db:', dbError);
+    }
+
+    throw error;
+  }
+}
+
+//* Posts a review comment on a pull request.
+export async function postReviewComment(
+  token: string,
+  owner: string,
+  repo: string,
+  prNumber: number,
+  review: string
+) {
+  try {
+    const octokit = new Octokit({ auth: token });
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: prNumber,
+      body: `## 🤖 AI Code Review \n\n${review}\n\n---\n*Powered by DebugDeer* 🦌`,
+    });
+  } catch (error) {
+    logger.error('Failed to post review comment:', error);
+    throw new Error('Failed to post review comment');
+  }
+}
+
+export {
+  getGithubToken,
+  fetchUserContributions,
+  getRepositories,
+  createWebhook,
+  deleteWebhook,
+  getRepoFileContents,
+  reviewPullRequest,
+  getPullRequestDiff,
+};

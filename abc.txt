@@ -1,0 +1,21 @@
+Run servrer:
+
+bun run dev
+
+Run client:
+
+bun run dev
+
+
+ngrok Run:
+
+ngrok http 8080 
+
+
+Inngest dev server Run:
+
+npx --ignore-scripts=false inngest-cli@latest dev -u http://localhost:8080/api/inngest
+
+
+VIDEO: 
+https://youtu.be/my29RqLL-vg?si=a5ehx_LkvUHRkNYV&t=23670

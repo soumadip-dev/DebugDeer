@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import logger from '../utils/logger.utils';
+import { reviewPullRequest } from '../lib/github';
 
 //* Controller to handle GitHub webhook events
 const handleGithubWebhook = async (req: Request, res: Response) => {
@@ -11,14 +12,33 @@ const handleGithubWebhook = async (req: Request, res: Response) => {
 
     // Handle ping event (GitHub sends this when webhook is first created)
     if (event === 'ping') {
-      logger.info('Webhook ping received - webhook is working');
+      logger.info('Webhook ping received');
       return res.status(200).json({
         success: true,
         message: 'Pong',
         event: 'ping',
       });
     }
-    // TODO: Handle pull request event
+
+    // Handle pull request event
+    if (event === 'pull_request') {
+      logger.info('Pull request event received');
+      const action = body.action;
+      const prNumber = body.number;
+      const repository = body.repository.full_name;
+
+      const [owner, repoName] = repository.split('/');
+
+      if (action === 'opened' || action === 'synchronize') {
+        reviewPullRequest(owner, repoName, prNumber)
+          .then(() => {
+            logger.info(`Pull request reviewed for ${repository} #${prNumber}`);
+          })
+          .catch(error => {
+            logger.error(`Error reviewing pull request for ${repository} #${prNumber}`, error);
+          });
+      }
+    }
 
     return res.status(200).json({
       success: true,
