@@ -6,10 +6,14 @@ import logger from '../utils/logger.utils';
 //* Generates embeddings for the given text.
 async function generateEmbeddings(text: string) {
   const { embedding } = await embed({
-    model: google.textEmbeddingModel('text-embedding-004'),
+    model: google.embedding('gemini-embedding-001'),
     value: text,
+    providerOptions: {
+      google: {
+        outputDimensionality: 1024,
+      },
+    },
   });
-
   return embedding;
 }
 
