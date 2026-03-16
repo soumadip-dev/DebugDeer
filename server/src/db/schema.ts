@@ -1,4 +1,5 @@
 import { relations } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 import { pgTable, text, timestamp, boolean, index, bigint } from 'drizzle-orm/pg-core';
 
 /* ================= USER ================= */
@@ -105,6 +106,36 @@ export const verification = pgTable(
   table => [index('verification_identifier_idx').on(table.identifier)]
 );
 
+/* ================= REVIEW ================= */
+export const review = pgTable(
+  'review',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repository.id, { onDelete: 'cascade' }),
+    prNumber: bigint('pr_number', { mode: 'number' }).notNull(),
+
+    prTitle: text('pr_title').notNull(),
+
+    prUrl: text('pr_url').notNull(),
+
+    review: text('review').notNull(),
+
+    status: text('status').default('completed').notNull(),
+
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  table => [index('review_repositoryId_idx').on(table.repositoryId)]
+);
+
 /* ================= RELATIONS ================= */
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -127,9 +158,17 @@ export const accountRelations = relations(account, ({ one }) => ({
   }),
 }));
 
-export const repositoryRelations = relations(repository, ({ one }) => ({
+export const reviewRelations = relations(review, ({ one }) => ({
+  repository: one(repository, {
+    fields: [review.repositoryId],
+    references: [repository.id],
+  }),
+}));
+
+export const repositoryRelations = relations(repository, ({ one, many }) => ({
   user: one(user, {
     fields: [repository.userId],
     references: [user.id],
   }),
+  reviews: many(review),
 }));
