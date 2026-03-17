@@ -2,7 +2,10 @@ import type { Request, Response } from 'express';
 import { Octokit } from 'octokit';
 import { getGithubToken, fetchUserContributions } from '../lib/github';
 import { db } from '../db';
-import { and, gte, eq } from 'drizzle-orm';
+import { and, gte, eq, count } from 'drizzle-orm';
+import { repository, review } from '../db/schema';
+import { fromNodeHeaders } from 'better-auth/node';
+import { auth } from '../lib/auth';
 import logger from '../utils/logger.utils';
 
 //* Controller to get contribution graph data
@@ -26,7 +29,7 @@ async function getContributionGraph(req: Request, res: Response) {
       week.contributionDays.map((day: any) => ({
         date: day.date,
         count: day.contributionCount,
-        level: Math.min(4, Math.floor(day.contributionCount / 3)), // Convert to 0-4 scale
+        level: Math.min(4, Math.floor(day.contributionCount / 3)),
       }))
     );
 
@@ -46,17 +49,27 @@ async function getContributionGraph(req: Request, res: Response) {
 //* Controller to get dashboard stats (total commits, total PRs, total reviews, total repos)
 async function getDashboardStats(req: Request, res: Response) {
   try {
-    // Get GitHub token for the user
     const token = await getGithubToken(req);
-
-    // Create Octokit instance
     const octokit = new Octokit({ auth: token });
 
-    // Get authenticated GitHub user info
     const { data: githubUser } = await octokit.rest.users.getAuthenticated();
 
-    // TODO: FETCH TOTAL CONNECTED REPO FROM DB
-    const totalRepos = 30; // Placeholder
+    // Get session to identify the user
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (!session) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Fetch total connected repos from DB
+    const [repoCountResult] = await db
+      .select({ count: count() })
+      .from(repository)
+      .where(eq(repository.userId, session.user.id));
+
+    const totalRepos = repoCountResult?.count ?? 0;
 
     // Fetch contribution calendar
     const calendar = await fetchUserContributions(token, githubUser.login);
@@ -65,12 +78,34 @@ async function getDashboardStats(req: Request, res: Response) {
     // Count total PRs via GitHub search
     const { data: prs } = await octokit.rest.search.issuesAndPullRequests({
       q: `author:${githubUser.login} type:pr`,
-      per_page: 1, // we only need total_count
+      per_page: 1,
     });
     const totalPRs = prs.total_count;
 
-    // TODO: Count total AI reviews from your database
-    const totalReviews = 44; // Placeholder
+    // Count total AI reviews from DB (via the user's connected repositories)
+    const userRepos = await db
+      .select({ id: repository.id })
+      .from(repository)
+      .where(eq(repository.userId, session.user.id));
+
+    const userRepoIds = userRepos.map(r => r.id);
+
+    let totalReviews = 0;
+    if (userRepoIds.length > 0) {
+      const [reviewCountResult] = await db.select({ count: count() }).from(review).where(
+        // inArray is used here — add to imports if not present
+        // Alternatively, join approach below avoids inArray:
+        eq(review.repositoryId, review.repositoryId) // placeholder — see join below
+      );
+      // Better: use a join to count reviews for this user's repos
+      const [reviewCount] = await db
+        .select({ count: count() })
+        .from(review)
+        .innerJoin(repository, eq(review.repositoryId, repository.id))
+        .where(eq(repository.userId, session.user.id));
+
+      totalReviews = reviewCount?.count ?? 0;
+    }
 
     res.status(200).json({
       message: 'Dashboard stats fetched successfully',
@@ -96,13 +131,18 @@ async function getMonthlyActivity(req: Request, res: Response) {
     const token = await getGithubToken(req);
     const octokit = new Octokit({ auth: token });
 
-    // Get the actual github username from github api
     const { data: githubUser } = await octokit.rest.users.getAuthenticated();
 
-    // Fetch contribution calendar
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (!session) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const calendar = await fetchUserContributions(token, githubUser.login);
 
-    // Prepare month names and initialize last 6 months
     const monthNames: string[] = [
       'Jan',
       'Feb',
@@ -121,7 +161,6 @@ async function getMonthlyActivity(req: Request, res: Response) {
     const now = new Date();
     const monthlyData: Record<string, { commits: number; prs: number; reviews: number }> = {};
 
-    // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthKey = monthNames[date.getMonth()] as string;
@@ -141,38 +180,24 @@ async function getMonthlyActivity(req: Request, res: Response) {
       });
     }
 
-    // Fetch PRs from the last 6 months via GitHub search
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    // TODO: Fetch reviews from your database for the last 6 months - for now sample reviews
-    const generateSampleReviews = () => {
-      const sampleReviews = [];
-      const now = new Date();
+    // Fetch reviews from DB for the last 6 months
+    const reviews = await db
+      .select({ createdAt: review.createdAt })
+      .from(review)
+      .innerJoin(repository, eq(review.repositoryId, repository.id))
+      .where(and(eq(repository.userId, session.user.id), gte(review.createdAt, sixMonthsAgo)));
 
-      // Generate random reviews over the past 6 months
-      for (let i = 0; i < 45; i++) {
-        const randomDaysAgo = Math.floor(Math.random() * 180); // Random day in last 6 months
-        const reviewDate = new Date(now);
-        reviewDate.setDate(reviewDate.getDate() - randomDaysAgo);
-
-        sampleReviews.push({
-          createdAt: reviewDate,
-        });
-      }
-
-      return sampleReviews;
-    };
-
-    const reviews = generateSampleReviews();
-
-    reviews.forEach(review => {
-      const monthKey = monthNames[review.createdAt.getMonth()] as string;
+    reviews.forEach(r => {
+      const monthKey = monthNames[r.createdAt.getMonth()] as string;
       if (monthlyData[monthKey]) {
         monthlyData[monthKey].reviews += 1;
       }
     });
 
+    // Fetch PRs from the last 6 months via GitHub search
     const { data: prs } = await octokit.rest.search.issuesAndPullRequests({
       q: `author:${githubUser.login} type:pr created:>${sixMonthsAgo.toISOString().split('T')[0]}`,
       per_page: 100,
@@ -186,7 +211,6 @@ async function getMonthlyActivity(req: Request, res: Response) {
       }
     });
 
-    // Transform to array for frontend
     const result = Object.keys(monthlyData).map(name => ({
       name,
       ...monthlyData[name],

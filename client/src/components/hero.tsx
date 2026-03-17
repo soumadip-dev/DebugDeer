@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TextEffect } from '@/components/ui/text-effect';
 
@@ -48,14 +48,7 @@ export function HeroSection() {
             <Button
               size="lg"
               className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 px-8 h-12 text-base font-semibold group cursor-pointer"
-            >
-              Try It Out
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-border/50 hover:border-primary/50 hover:bg-muted h-12 px-8 text-base font-semibold cursor-pointer"
+              onClick={() => window.open('https://github.com/soumadip-dev/DebugDeer', '_blank')}
             >
               Watch Demo
             </Button>
