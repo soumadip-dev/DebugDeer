@@ -77,9 +77,12 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r border-border/50">
       <SidebarHeader className="border-b border-border/50">
-        <div className="flex items-center gap-3 px-4 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-md">
-            <Github className="h-5 w-5" />
+        <div
+          className="flex items-center gap-3 px-4 py-5 cursor-pointer"
+          onClick={() => navigate('/')}
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl  to-primary text-primary-foreground shadow-md">
+            <img src="DebugDeer-logo.svg" alt="DebugDeer" className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold tracking-tight">DebugDeer</span>
@@ -119,7 +122,10 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-border/50 p-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 rounded-xl border-2 border-border/50">
+          <Avatar
+            className="h-10 w-10 rounded-xl border-2 border-border/50 cursor-pointer"
+            onClick={() => navigate('/settings')}
+          >
             <AvatarImage src={userAvatar || '/placeholder.svg'} alt={userName} />
             <AvatarFallback className="rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-medium">
               {userInitials}
@@ -134,7 +140,7 @@ export function AppSidebar() {
           <div className="flex items-center gap-0.5">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+              className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -142,7 +148,7 @@ export function AppSidebar() {
 
             <button
               onClick={handleSignOut}
-              className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+              className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive cursor-pointer"
               aria-label="Sign out"
             >
               <LogOut className="h-4 w-4" />

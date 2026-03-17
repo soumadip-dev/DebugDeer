@@ -128,7 +128,7 @@ export function Header() {
           <div className="hidden md:flex md:items-center md:gap-4">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-foreground/70 hover:text-foreground"
+              className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-foreground/70 hover:text-foreground cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -140,7 +140,7 @@ export function Header() {
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 hover:bg-muted"
+                  className="flex items-center gap-2 hover:bg-muted cursor-pointer"
                   onClick={handleDashboardClick}
                 >
                   <User className="h-4 w-4" />
@@ -148,7 +148,7 @@ export function Header() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+                  className="flex items-center gap-2 border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
                   onClick={handleSignOut}
                 >
                   <LogOut className="h-4 w-4" />
@@ -157,7 +157,7 @@ export function Header() {
               </div>
             ) : (
               <Button
-                className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity px-4 py-2"
+                className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity px-4 py-2 cursor-pointer"
                 onClick={handleGithubLogin}
                 disabled={isLoading}
               >
@@ -170,14 +170,14 @@ export function Header() {
           <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-foreground/70 hover:text-foreground"
+              className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-foreground/70 hover:text-foreground cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+              className="inline-flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors cursor-pointer"
               onClick={toggleMobileMenu}
               aria-label="Toggle menu"
               disabled={sessionPending}
@@ -220,7 +220,7 @@ export function Header() {
               </div>
 
               <Button
-                className="w-full justify-start bg-gradient-to-r from-primary to-secondary text-white py-3"
+                className="w-full justify-start bg-gradient-to-r from-primary to-secondary text-white py-3 cursor-pointer"
                 onClick={handleDashboardClick}
               >
                 <User className="mr-3 h-5 w-5" />
@@ -229,7 +229,7 @@ export function Header() {
 
               <Button
                 variant="outline"
-                className="w-full justify-start border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors py-3"
+                className="w-full justify-start border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors py-3 cursor-pointer"
                 onClick={() => {
                   handleSignOut();
                   closeMobileMenu();
@@ -242,7 +242,7 @@ export function Header() {
           ) : (
             <div className="space-y-4">
               <Button
-                className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 text-base font-medium"
+                className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 text-base font-medium cursor-pointer"
                 onClick={() => {
                   handleGithubLogin();
                   closeMobileMenu();

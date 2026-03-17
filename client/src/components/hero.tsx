@@ -20,14 +20,10 @@ export function HeroSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <div className="flex justify-center mb-8">
-            <a
-              href="#features"
-              className="group inline-flex items-center gap-2 rounded-full border border-border/50 bg-muted/50 px-4 py-1.5 text-sm backdrop-blur-sm transition-all hover:border-primary/50 hover:bg-muted"
-            >
+            <div className="group inline-flex items-center gap-2 rounded-full border border-border/50 bg-muted/50 px-4 py-1.5 text-sm backdrop-blur-sm transition-all hover:border-primary/50 hover:bg-muted">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span className="text-foreground/80">Powered by Advanced AI</span>
-              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1" />
-            </a>
+            </div>
           </div>
 
           <h1 className="mx-auto max-w-5xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
@@ -51,15 +47,15 @@ export function HeroSection() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 px-8 h-12 text-base font-semibold group"
+              className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 px-8 h-12 text-base font-semibold group cursor-pointer"
             >
-              Start Free Trial
+              Try It Out
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-border/50 hover:border-primary/50 hover:bg-muted h-12 px-8 text-base font-semibold"
+              className="border-border/50 hover:border-primary/50 hover:bg-muted h-12 px-8 text-base font-semibold cursor-pointer"
             >
               Watch Demo
             </Button>
