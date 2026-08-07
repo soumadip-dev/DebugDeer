@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-  <img src="./client/public/banner-readme.png" alt="DebugDeer Banner" width="900">
+  <img src="./client/public/banner-readme.jpg" alt="DebugDeer Banner" width="900">
 </div>
 
 ## 🔋 Features
